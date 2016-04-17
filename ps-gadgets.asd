@@ -5,7 +5,8 @@
   :author "Your Name <your.name@example.com>"
   :license "Specify license here"
   :depends-on (#:parenscript
-               #:gadgets)
+               #:gadgets
+               #:alexandria)
   :serial t
   :components ((:file "package")
                (:file "ps-macros")

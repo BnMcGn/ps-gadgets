@@ -1,5 +1,23 @@
 ;;;; package.lisp
 
 (defpackage #:ps-gadgets
-  (:use #:cl))
+  (:use #:cl #:parenscript)
+  (:export
+   #:do-keyvalue
+   #:collecting-string
+   #:collecting
+   #:collecting-set
+   #:do-window
+   #:strcat
+   #:threeway
+   #:ps-gadgets
+   #:alist->ps-object-code
+   #:*js-second*
+   #:*js-minute*
+   #:*js-hour*
+   #:*js-day*
+   #:*js-week*
+   #:*js-month*
+   #:*js-year*
+   #:collect))
 

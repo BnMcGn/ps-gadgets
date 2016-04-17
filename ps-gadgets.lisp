@@ -13,8 +13,8 @@
 (defparameter *js-year* (* 365 *js-day*))
 
 (defun ps-gadgets ()
-  (strcat
-   (compile-script *ps-lisp-library*)
+  (concatenate 'string
+   (ps* *ps-lisp-library*)
    (ps
      (defun say (thing)
        (chain console (log thing))
@@ -80,19 +80,61 @@
      (defun not-empty (itm)
        (and itm (< 0 (@ itm length))))
 
+     ;;Tools for non-destructive editing. Useful for redux.
+
      (defun shallow-copy (obj)
        (let ((res (create)))
          (do-keyvalue (k v obj)
            (setf (aref res k) v))
          res))
 
+     (defun copy-merge-objects (base addition)
+       "Makes a copy of base, overwrites key values in base with those found
+        in addition. Silently ignores extra keys in addition."
+       (let ((res (create)))
+         (do-keyvalue (k v base)
+           (setf (getprop res k)
+                 (if (chain addition (has-own-property k))
+                     (getprop addition k)
+                     (getprop base k))))
+         res))
+
+     (defun safe-set-copy (arr key value)
+       "Creates copy of arr, setting key to value in the copy only if it
+        exists in the original."
+       (unless (chain arr (has-own-property key))
+         (error "Tried to set non-existent key in safe-set-copy"))
+       (copy-merge-objects
+        arr
+        (let ((data (create)))
+          (setf (getprop data key) value)
+          data)))
+
+     (defun set-copy (arr key value)
+       "Creates copy of arr, setting key to value in the copy regardless of
+        whether it exists in the original."
+       (let ((res (shallow-copy arr)))
+         (setf (getprop res key) value)
+         res))
+
+     (defun incf-copy (arr key &optional (value 1))
+       (safe-set-copy arr key (+ (getprop arr key) value)))
+
+     (defun decf-copy (arr key &optional (value 1))
+       (safe-set-copy arr key (- (getprop arr key) value)))
+
+     (defun inc-or-set-copy (arr key &optional (value 1))
+       (if (chain arr (has-own-property key))
+           (incf-copy arr key value)
+           (set-copy arr key value)))
+
          ))); End ps-gadgets
 
 (defun alist->ps-object-code (alist &key (wrap t))
   (let ((res
-   (collecting
+   (gadgets:collecting
        (dolist (item alist)
-         (collect (car item))
-         (collect (cdr item))))))
+         (gadgets:collect (car item))
+         (gadgets:collect (cdr item))))))
     (if wrap (cons 'ps:create res) res)))
 
