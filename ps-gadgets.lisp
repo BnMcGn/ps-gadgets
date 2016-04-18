@@ -99,22 +99,22 @@
                      (getprop base k))))
          res))
 
-     (defun safe-set-copy (arr key value)
-       "Creates copy of arr, setting key to value in the copy only if it
-        exists in the original."
-       (unless (chain arr (has-own-property key))
-         (error "Tried to set non-existent key in safe-set-copy"))
-       (copy-merge-objects
-        arr
-        (let ((data (create)))
-          (setf (getprop data key) value)
-          data)))
+     (defun safe-set-copy (arr &rest key/values)
+       "Creates copy of arr, setting keys to values in the copy only if they
+        exist in the original."
+       (let ((res (create)))
+         (do-window ((k v) key/values :step 2)
+           (unless (chain arr (has-own-property k))
+             (error "Tried to set non-existent key in safe-set-copy"))
+           (setf (getprop res k) v))
+         (copy-merge-objects arr res)))
 
-     (defun set-copy (arr key value)
+     (defun set-copy (arr &rest key/values)
        "Creates copy of arr, setting key to value in the copy regardless of
         whether it exists in the original."
        (let ((res (shallow-copy arr)))
-         (setf (getprop res key) value)
+         (do-window ((k v) key/values :step 2)
+           (setf (getprop res k) v))
          res))
 
      (defun incf-copy (arr key &optional (value 1))
@@ -127,6 +127,22 @@
        (if (chain arr (has-own-property key))
            (incf-copy arr key value)
            (set-copy arr key value)))
+
+     (defun get-path (arr path)
+       (if (> 1 (chain path (length)))
+           (get-path (getprop arr (car path)) (cdr path))
+           (getprop arr (car path))))
+
+     (defun deep-set-copy (arr path value)
+       (case (chain path (length))
+         (0
+          (error "Shouldn't have zero length path"))
+         (1
+          (safe-set-copy arr (car path) value))
+         (otherwise
+          (safe-set-copy
+           arr (car path)
+           (deep-set-copy (getprop arr (car path)) (cdr path) value)))))
 
          ))); End ps-gadgets
 
