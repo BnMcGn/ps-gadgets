@@ -62,3 +62,9 @@
              ((equal 0 ,val) ,zero-clause)
              (t ,plus-clause)))));end eval-always
 
+(defpsmacro json-bind ((results url &rest params) &body body)
+  `(chain $ (get-j-s-o-n ,url (create ,@params) (lambda (,results) ,@body))))
+
+(defpsmacro json-post-bind ((results url data &rest params) &body body)
+  `(chain $ (ajax (create data-type "json" :url ,url :data ,data :type "POST"
+                          :success (lambda (,results) ,@body) ,@params))))
