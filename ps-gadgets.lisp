@@ -16,6 +16,10 @@
   (concatenate 'string
    (ps* *ps-lisp-library*)
    (ps
+
+     (defparameter *whitespace-characters*
+       (lisp (list* 'list gadgets:*whitespace-characters*)))
+
      (defun say (thing)
        (chain console (log thing))
        thing)
@@ -80,6 +84,10 @@
      (defun not-empty (itm)
        (and itm (< 0 (@ itm length))))
 
+     (let ((counter 0))
+       (defun unique-id ()
+         (incf counter)))
+
      ;;Tools for non-destructive editing. Useful for redux.
 
      (defun shallow-copy (obj)
@@ -99,13 +107,26 @@
                      (getprop base k))))
          res))
 
+     (defun copy-merge-all (&rest objects)
+       (let ((res (create)))
+         (dolist (ob objects)
+           (do-keyvalue (k v ob)
+             (setf (getprop res k) v)))
+         res))
+
+     (defun copy-remove-keys (obj keys)
+       (let ((res (shallow-copy obj)))
+         (dolist (k keys)
+           (delete (getprop res k)))
+         res))
+
      (defun safe-set-copy (arr &rest key/values)
        "Creates copy of arr, setting keys to values in the copy only if they
         exist in the original."
        (let ((res (create)))
          (do-window ((k v) key/values :step 2)
            (unless (chain arr (has-own-property k))
-             (error "Tried to set non-existent key in safe-set-copy"))
+             (throw "Tried to set non-existent key in safe-set-copy"))
            (setf (getprop res k) v))
          (copy-merge-objects arr res)))
 
@@ -134,15 +155,16 @@
            (getprop arr (car path))))
 
      (defun deep-set-copy (arr path value)
-       (case (chain path (length))
+       (case (@ path length)
          (0
-          (error "Shouldn't have zero length path"))
+          (throw "Shouldn't have zero length path"))
          (1
-          (safe-set-copy arr (car path) value))
+          (safe-set-copy arr (elt path 0) value))
          (otherwise
           (safe-set-copy
-           arr (car path)
-           (deep-set-copy (getprop arr (car path)) (cdr path) value)))))
+           arr (elt path 0)
+           (deep-set-copy (getprop arr (elt path 0))
+                          (chain path (slice 1)) value)))))
 
          ))); End ps-gadgets
 

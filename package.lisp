@@ -19,5 +19,7 @@
    #:*js-week*
    #:*js-month*
    #:*js-year*
-   #:collect))
+   #:collect
+   #:json-bind
+   #:json-post-bind))
 
