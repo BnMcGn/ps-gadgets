@@ -2,7 +2,16 @@
 
 (in-package #:ps-gadgets)
 
-;;; "webhax" goes here. Hacks and glory await!
+;;; "ps-gadgets" goes here. Hacks and glory await!
+
+;;;FIXME: Should handle docstring
+(defmacro def-ps-lib (name (&rest params) &body body)
+  "Define a function whose body will contain parenscript"
+  `(gadgets:watch-for-recompile
+     (defun ,name ,params
+       (gadgets:request-watch-on-names '(,name))
+       ,@body)))
+
 
 (defpsmacro do-keyvalue ((key val obj) &body body)
   (let ((obj-v (gensym)))
@@ -67,4 +76,10 @@
 
 (defpsmacro json-post-bind ((results url data &rest params) &body body)
   `(chain $ (ajax (create data-type "json" :url ,url :data ,data :type "POST"
-                          :success (lambda (,results) ,@body) ,@params))))
+                          :success (lambda (,results) ,@body)
+                          :error (lambda (data status error)
+                                   (say (strcat "Ajax failure: "
+                                                status
+                                                " Error: "
+                                                error)))
+                          ,@params))))
