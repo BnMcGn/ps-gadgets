@@ -21,5 +21,6 @@
    #:*js-year*
    #:collect
    #:json-bind
-   #:json-post-bind))
+   #:json-post-bind
+   #:def-ps-lib))
 

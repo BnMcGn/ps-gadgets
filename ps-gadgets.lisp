@@ -12,16 +12,22 @@
 (defparameter *js-month* (* 30 *js-day*)) ;Ok, things start to get wierd.
 (defparameter *js-year* (* 365 *js-day*))
 
-(defun ps-gadgets ()
+(def-ps-lib ps-gadgets ()
   (concatenate 'string
    (ps* *ps-lisp-library*)
    (ps
 
-     (defparameter *whitespace-characters*
+     (setf *whitespace-characters*
        (lisp (list* 'list gadgets:*whitespace-characters*)))
 
      (defun say (thing)
        (chain console (log thing))
+       thing)
+
+     (defun grab (thing)
+       (if (@ window grabbed)
+           (push thing (@ window grabbed))
+           (setf (@ window grabbed) (list thing)))
        thing)
 
      (defun atom (itm)
@@ -84,9 +90,24 @@
      (defun not-empty (itm)
        (and itm (< 0 (@ itm length))))
 
+     (defun first-match (pred list)
+       (multiple-value-bind (val sig)
+           (dolist (x list)
+             (when (funcall predicate x)
+               (return (values x t))))
+         (if sig
+             (values val t)
+             (values nil nil))))
+
      (let ((counter 0))
        (defun unique-id ()
          (incf counter)))
+
+     (defun create-from-list (keys-and-values)
+       (let ((res (create)))
+         (do-window ((k v) keys-and-values :step 2)
+           (setf (aref res k) v))
+         res))
 
      ;;Tools for non-destructive editing. Useful for redux.
 
