@@ -76,7 +76,10 @@
 
 (defpsmacro json-post-bind ((results url data &rest params) &body body)
   `(chain $ (ajax (create data-type "json" :url ,url :data ,data :type "POST"
-                          :success (lambda (,results) ,@body)
+                          :success (lambda (,results)
+                                     (let ((,results
+                                            (chain -j-s-o-n (parse ,results))))
+                                       ,@body))
                           :error (lambda (data status error)
                                    (say (strcat "Ajax failure: "
                                                 status
