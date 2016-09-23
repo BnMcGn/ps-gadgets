@@ -99,6 +99,13 @@
              (values val t)
              (values nil nil))))
 
+     (defun boolify (val)
+       ;;FIXME: Should be using case insensitive test
+       (when val
+         (if (member val '(0 "false" "False" "NIL" "nil" "null" "Null" "No" "no"))
+             nil
+             t)))
+
      (let ((counter 0))
        (defun unique-id ()
          (incf counter)))
