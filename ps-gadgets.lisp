@@ -90,14 +90,15 @@
      (defun not-empty (itm)
        (and itm (< 0 (@ itm length))))
 
-     (defun first-match (predicate list)
-       (multiple-value-bind (val sig)
-           (dolist (x list)
-             (when (funcall predicate x)
-               (return (values x t))))
-         (if sig
-             (values val t)
-             (values nil nil))))
+     (defun first-match (predicate input-list)
+       (let ((res nil)
+             (sig nil))
+         (dolist (x input-list)
+           (when (funcall predicate x)
+             (setf res x)
+             (setf sig t)
+             (break)))
+         (values res sig)))
 
      (defun boolify (val)
        ;;FIXME: Should be using case insensitive test
