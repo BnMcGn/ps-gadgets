@@ -90,7 +90,7 @@
      (defun not-empty (itm)
        (and itm (< 0 (@ itm length))))
 
-     (defun first-match (pred list)
+     (defun first-match (predicate list)
        (multiple-value-bind (val sig)
            (dolist (x list)
              (when (funcall predicate x)
