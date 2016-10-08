@@ -31,7 +31,7 @@
        thing)
 
      (defun atom (itm)
-       (chain -array (is-array itm)))
+       (not (chain -array (is-array itm))))
 
      (defun ensure-array (arr)
        (cond
