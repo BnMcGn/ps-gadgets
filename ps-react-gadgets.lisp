@@ -1,7 +1,7 @@
 ;;;; ps-react-gadgets.lisp
 
 (defpackage #:ps-react-gadgets
-  (:use #:cl #:parenscript #:ps-gadgets))
+  (:use #:cl #:parenscript #:ps-gadgets #:cl-react))
 
 (in-package #:ps-react-gadgets)
 

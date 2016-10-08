@@ -7,7 +7,8 @@
   :depends-on (#:parenscript
                #:gadgets
                #:ps-gadgets
-               #:alexandria)
+               #:alexandria
+               #:cl-react)
   :serial t
   :components ((:file "ps-react-gadgets")))
 
