@@ -1,7 +1,9 @@
 ;;;; ps-react-gadgets.lisp
 
 (defpackage #:ps-react-gadgets
-  (:use #:cl #:parenscript #:ps-gadgets #:cl-react))
+  (:use #:cl #:parenscript #:ps-gadgets #:cl-react)
+  (:export
+   #:ps-react-gadgets))
 
 (in-package #:ps-react-gadgets)
 
@@ -13,14 +15,14 @@
         (let ((children
                (if (atom (prop children))
                    (prop children)
-                   (raise "updateNotify should only be used with one child"))))
-          (set-state 'existing-dispatch (@ children props dispatch))
+                   (throw "updateNotify should only be used with one child"))))
           (chain -react
                  (clone-element children
                                 (create :dispatch (@ self new-dispatch)))))
       get-initial-state
       (lambda ()
-        (create :callbacks [] 'existing-dispatch nil))
+        (create :callbacks []
+                'existing-dispatch (prop children props dispatch)))
       new-dispatch
       (lambda (action)
         (if (eq (@ action type) 'set-callback)
