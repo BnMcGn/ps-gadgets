@@ -18,20 +18,22 @@
                    (throw "updateNotify should only be used with one child"))))
           (chain -react
                  (clone-element children
-                                (create :dispatch (@ self new-dispatch)))))
+                                (create :dispatch (@ this new-dispatch)))))
       get-initial-state
       (lambda ()
         (create :callbacks []
-                'existing-dispatch (prop children props dispatch)))
+                :olddispatch (prop children props dispatch)))
       new-dispatch
       (lambda (action)
+        ;;FIXME: Review callback storage. Maybe should delete old.
         (if (eq (@ action type) 'set-callback)
             (set-state callbacks
-                       (chain (state callbacks)
-                              (append (list (@ action 'callback)))))
-            (when (state 'existing-dispatch)
-              (funcall (state 'existing-dispatch action)))))
-      component-did-update
+                       (list (@ action 'callback)))
+                      ; (chain (state callbacks)
+                      ;        (append (list (@ action 'callback)))))
+            (when (state :olddispatch)
+              (funcall (state :olddispatch) action))))
+      component-will-receive-props
       (lambda ()
         (dolist (x (state callbacks))
           (funcall x))))
