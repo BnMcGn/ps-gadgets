@@ -75,14 +75,17 @@
   `(chain $ (get-j-s-o-n ,url (create ,@params) (lambda (,results) ,@body))))
 
 (defpsmacro json-post-bind ((results url data &rest params) &body body)
-  `(chain $ (ajax (create data-type "json" :url ,url :data ,data :type "POST"
-                          :success (lambda (,results)
-                                     (let ((,results
-                                            (chain -j-s-o-n (parse ,results))))
-                                       ,@body))
-                          :error (lambda (data status error)
-                                   (say (strcat "Ajax failure: "
-                                                status
-                                                " Error: "
-                                                error)))
-                          ,@params))))
+  `(chain $ (ajax
+             (create data-type "json" :url ,url :data ,data :type "POST"
+                     :success (lambda (,results)
+                                (let ((,results
+                                       (if (equal (typeof ,results) "string")
+                                           (chain -j-s-o-n (parse ,results))
+                                           ,results)))
+                                  ,@body))
+                     :error (lambda (data status error)
+                              (say (strcat "Ajax failure: "
+                                           status
+                                           " Error: "
+                                           error)))
+                     ,@params))))
