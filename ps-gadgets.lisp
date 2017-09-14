@@ -167,6 +167,18 @@
            (setf (getprop res k) v))
          res))
 
+     (defun copy-updates (orig changes)
+       "Creates a copy of changes that only contains things that are
+       different from orig."
+       (let ((res (create)))
+         (do-keyvalue (k v changes)
+           (if (chain orig (has-own-property k))
+               (unless (equal (getprop orig k) v)
+                 (setf (getprop res k) v))
+               (setf (getprop res k) v)))
+         res))
+
+
      (defun incf-copy (arr key &optional (value 1))
        (safe-set-copy arr key (+ (getprop arr key) value)))
 
