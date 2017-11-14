@@ -41,6 +41,16 @@
           arr)
          (t ([] arr))))
 
+     (defun ensure-string (str)
+       (if (equal (typeof str) "string")
+           str
+           ""))
+
+     (defun capitalize-first (str)
+       (chain str (replace (regex "^[a-z]")
+                           (lambda (first-char)
+                             (chain first-char (to-upper-case))))))
+
      (defun remove-if-not (test arr)
        (collecting
          (dolist (itm (ensure-array arr))
