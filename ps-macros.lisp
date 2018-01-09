@@ -89,3 +89,15 @@
                                            " Error: "
                                            error)))
                      ,@params))))
+
+(defpsmacro text-bind ((results url &rest params) &body body)
+  `(chain $ (ajax
+             (create data-type "text" :url ,url :type "GET"
+                     :success (lambda (,results)
+                                ,@body)
+                     :error (lambda (data status error)
+                              (say (strcat "Ajax failure: "
+                                           status
+                                           " Error: "
+                                           error)))
+                     ,@params))))
