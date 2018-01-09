@@ -22,5 +22,6 @@
    #:collect
    #:json-bind
    #:json-post-bind
-   #:def-ps-lib))
+   #:def-ps-lib
+   #:text-bind))
 
