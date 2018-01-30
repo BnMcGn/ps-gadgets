@@ -121,6 +121,11 @@
        (defun unique-id ()
          (incf counter)))
 
+     (defun list-last (list-obj)
+       (when (and (chain list-obj (has-own-property 'length))
+                  (< 0 (@ list-obj length)))
+         (@ list-obj (- (@ list-obj length) 1))))
+
      (defun create-from-list (keys-and-values)
        (let ((res (create)))
          (do-window ((k v) keys-and-values :step 2)
