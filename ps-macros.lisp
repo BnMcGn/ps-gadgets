@@ -101,3 +101,30 @@
                                            " Error: "
                                            error)))
                      ,@params))))
+
+(defpsmacro def-class (name (&optional extends) &body body)
+  (multiple-value-bind (constructor others)
+      (gadgets:splitfilter (lambda (x) (string-equal (car x) 'constructor)) body)
+    (let ((constructor (case (length constructor)
+                         (0 nil)
+                         (1 (car constructor))
+                         (otherwise
+                          (error "Class can't have more than one constructor"))))
+          (const-lambda-list nil)
+          (const-body nil))
+      (when constructor
+        (setf const-lambda-list (second constructor))
+        (set const-body (cddr constructor)))
+      `(progn
+         (defun ,name ,const-lambda-list
+           ,@body)
+         ,@(mapcar
+            (lambda (item)
+              `(setf (@ ,name prototype ,(car item))
+                     (lambda ,(second item) ,@(cddr item))))
+            others)
+         ,@(when extends
+                 `((setf (@ ,name prototype) (chain -object (create (@ ,name prototype))))
+                   (setf (@ ,name prototype constructor) ,name)))))))
+
+
