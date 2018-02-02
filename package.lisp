@@ -23,5 +23,6 @@
    #:json-bind
    #:json-post-bind
    #:def-ps-lib
-   #:text-bind))
+   #:text-bind
+   #:def-class))
 
