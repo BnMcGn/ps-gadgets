@@ -140,7 +140,7 @@
         (error "Non-list item found in class body."))
       (let ((staticp nil))
         (when (eq (car itm) :static)
-          (setf itm (cdr itm))
+          (setf itm (if (listp (cadr itm)) (cadr itm) (cdr itm)))
           (setf staticp t))
         (destructuring-bind (mname lambda-list . statements) itm
           (push
