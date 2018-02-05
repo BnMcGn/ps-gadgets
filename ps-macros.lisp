@@ -117,7 +117,7 @@
         (set const-body (cddr constructor)))
       `(progn
          (defun ,name ,const-lambda-list
-           ,@body)
+           ,@const-body)
          ,@(mapcar
             (lambda (item)
               `(setf (@ ,name prototype ,(car item))
@@ -127,4 +127,33 @@
                  `((setf (@ ,name prototype) (chain -object (create (@ ,name prototype))))
                    (setf (@ ,name prototype constructor) ,name)))))))
 
+(defpsmacro def-class-es6 (name (&optional extends) &body body)
+  (let ((extend-string (if extends
+                           (format nil " extends ~a" (symbol-to-js-string extends))
+                           "")))
+    `(progn
+       (lisp-raw ,(format nil "class ~a~a {" (symbol-to-js-string name) extend-string))
+       ,@(mapcar
+          (lambda (itm)
+            (when (atom itm)
+              (error "Non-list item found in class body."))
+            (let ((staticp nil))
+              (when (eq (car itm) :static)
+                (setf itm (cdr itm))
+                (setf staticp t))
+              (destructuring-bind (name lambda-list . statements) itm
+                `(lisp-raw
+                  ,(format
+                    nil "~a~a (~{~a~^ ~}) {~a}~&"
+                    (if staticp "static " "")
+                    name
+                    (mapcar #'symbol-to-js-string lambda-list)
+                    ;; Use parenscript to express the function bodies, then peel the
+                    ;; block contents out and put them in our own block.
+                    (let ((fbody (eval `(ps (lambda ,lambda-list ,@statements)))))
+                      (subseq fbody
+                              (1+ (position #\{ fbody))
+                              (position #\} fbody :from-end t))))))))
+          body)
+       (lisp-raw (format nil "}~&")))))
 
