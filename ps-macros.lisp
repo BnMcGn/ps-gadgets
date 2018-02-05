@@ -128,32 +128,34 @@
                    (setf (@ ,name prototype constructor) ,name)))))))
 
 (defpsmacro def-class-es6 (name (&optional extends) &body body)
-  (let ((extend-string (if extends
-                           (format nil " extends ~a" (symbol-to-js-string extends))
-                           "")))
-    `(progn
-       (lisp-raw ,(format nil "class ~a~a {" (symbol-to-js-string name) extend-string))
-       ,@(mapcar
-          (lambda (itm)
-            (when (atom itm)
-              (error "Non-list item found in class body."))
-            (let ((staticp nil))
-              (when (eq (car itm) :static)
-                (setf itm (cdr itm))
-                (setf staticp t))
-              (destructuring-bind (name lambda-list . statements) itm
-                `(lisp-raw
-                  ,(format
-                    nil "~a~a (~{~a~^ ~}) {~a}~&"
-                    (if staticp "static " "")
-                    name
-                    (mapcar #'symbol-to-js-string lambda-list)
-                    ;; Use parenscript to express the function bodies, then peel the
-                    ;; block contents out and put them in our own block.
-                    (let ((fbody (eval `(ps (lambda ,lambda-list ,@statements)))))
-                      (subseq fbody
-                              (1+ (position #\{ fbody))
-                              (position #\} fbody :from-end t))))))))
-          body)
-       (lisp-raw (format nil "}~&")))))
+  (let ((output nil))
+    (push (format nil "class ~a~a {~&"
+                  (symbol-to-js-string name)
+                  (if extends
+                      (format nil " extends ~a" (symbol-to-js-string extends))
+                      ""))
+          output)
+    (dolist (itm body)
+      (when (atom itm)
+        (error "Non-list item found in class body."))
+      (let ((staticp nil))
+        (when (eq (car itm) :static)
+          (setf itm (cdr itm))
+          (setf staticp t))
+        (destructuring-bind (mname lambda-list . statements) itm
+          (push
+           (format
+            nil "~a~a (~{~a~^ ~}) {~a}~&"
+            (if staticp "static " "")
+            (symbol-to-js-string mname)
+            (mapcar #'symbol-to-js-string lambda-list)
+            ;; Use parenscript to express a method body, then peel the
+            ;; block contents out and put them in our own block.
+            (let ((fbody (eval `(ps (lambda ,lambda-list ,@statements)))))
+              (subseq fbody
+                      (1+ (position #\{ fbody))
+                      (position #\} fbody :from-end t))))
+           output))))
+    (push "}" output)
+    `(lisp-raw ,(apply #'concatenate 'string (nreverse output)))))
 
