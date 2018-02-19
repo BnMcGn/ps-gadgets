@@ -159,12 +159,3 @@
     (push "}" output)
     `(lisp-raw ,(apply #'concatenate 'string (nreverse output)))))
 
-
-(ps-gadgets:def-class -person ()
-  (say-hello () (alert "hello"))
-  (walk () (alert "I am walking!")))
-
-(ps-gadgets:def-class -student (-person)
-  (say-good-bye () (alert "goodBye"))
-  (say-hello () (alert "hi, I am a student")))
-
