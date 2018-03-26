@@ -38,4 +38,20 @@
         (dolist (x (state callbacks))
           (funcall x))))
 
+    (def-component json-loader
+        (let ((child
+               (if (atom (prop children))
+                   (prop children)
+                   (throw "jsonLoader should only be used with one child"))))
+          (clone-element
+           child
+           (if (prop store-name)
+               (create-from-list (list (prop store-name) (@ this state)))
+               (@ this state))))
+      component-did-mount
+      (lambda ()
+        (do-keyvalue (key url (prop sources))
+          (json-bind (res url)
+              (set-state key res)))))
+
     ))
