@@ -54,4 +54,10 @@
           (json-bind (res url)
               (set-state key res)))))
 
+    (def-component display-if
+        (when (if (prop predicate)
+                  (funcall (prop predicate) (@ this props))
+                  (prop test))
+          (prop children)))
+
     ))
