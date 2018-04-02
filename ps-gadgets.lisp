@@ -98,7 +98,9 @@
           get-seconds (lambda () (parse-int (/ diff (lisp *js-second*)))))))
 
      (defun not-empty (itm)
-       (and itm (< 0 (@ itm length))))
+       (and itm (< 0 (if (eq undefined (@ itm length))
+                         (chain -object (keys itm) length)
+                         (@ itm length)))))
 
      (defun first-match (predicate input-list)
        (let ((res nil)
