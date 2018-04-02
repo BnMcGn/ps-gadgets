@@ -55,9 +55,10 @@
               (set-state key res)))))
 
     (def-component display-if
-        (when (if (prop predicate)
+        (if (if (prop predicate)
                   (funcall (prop predicate) (@ this props))
                   (prop test))
-          (prop children)))
+            (prop children)
+            null))
 
     ))
