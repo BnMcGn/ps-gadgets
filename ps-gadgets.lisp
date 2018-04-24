@@ -86,6 +86,10 @@
          (when tree
            (rec tree))))
 
+     (defun flatten (tree)
+       (collecting
+           (mapleaves #'collect tree)))
+
      (defun ago (date-obj)
        (let ((diff (- (chain -date (now)) date-obj)))
          (create
