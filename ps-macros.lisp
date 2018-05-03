@@ -61,6 +61,24 @@
               `(let ((,var/s (chain ,data (slice ,i (+ ,i ,size)))))
                  ,@body))))))
 
+(defmacro dotree ((var-for-leaf/branch
+                   tree
+                   &key
+                   result
+                   (order :depth)
+                   (proc-branch t)
+                   (proc-leaf nil)
+                   branch-filter
+                   leaf-test)
+                  &body body)
+  `(progn
+     (call-with-tree
+      (lambda (,var-for-leaf/branch) ,@body)
+      ,tree
+      :order ,order :proc-branch ,proc-branch :proc-leaf ,proc-leaf :branch-filter
+      ,branch-filter :leaf-test ,leaf-test)
+     ,result))
+
 (defpsmacro strcat (first &rest rest)
   `(chain ,first (concat ,@rest)))
 

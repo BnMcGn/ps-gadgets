@@ -236,6 +236,11 @@
            (deep-set-copy (getprop arr (elt path 0))
                           (chain path (slice 1)) value)))))
 
+     (defun push-copy (alist val)
+       (collecting
+           (collect val)
+         (dolist (itm alist)
+           (collect itm))))
 
      (defvar *tree-leaf-p* nil "Is the node being processed a leaf or a branch?")
      (defvar *tree-stack* nil "Pointers to the parentage of the current node. Includes current node.")
@@ -248,42 +253,51 @@
 
      (defun %proc-branch (branch exec)
        (collecting
-         (let ((stor nil))
-           (loop
-              for item-tmp in branch
-              for i from 0
-              do
-                (let ((*tree-stack* (cons item-tmp *tree-stack*))
-                      (*tree-index-stack* (cons i *tree-index-stack*))
-                      (item item-tmp))
-                  (if (funcall *tree-leaf-test* item)
-                      (when *tree-process-leaves*
-                        (collect
-                            (let ((*tree-leaf-p* t))
-                              (lambda ()
-                                (funcall exec item)
-                                nil))))
-                      (progn
-                        (when *tree-process-branches*
+           (let ((stor nil))
+             (loop
+                for item-tmp in branch
+                for i from 0
+                do
+                  (let* ((*tree-stack* (push-copy *tree-stack* item-tmp))
+                         (*tree-index-stack* (push-copy *tree-index-stack* i))
+                         (item item-tmp)
+                         (ts *tree-stack*)
+                         (tis *tree-index-stack*))
+                    (if (funcall *tree-leaf-test* item)
+                        (when *tree-process-leaves*
                           (collect
-                              (let ((*tree-leaf-p* nil))
+                              (let ((*tree-leaf-p* t))
                                 (lambda ()
-                                  (funcall exec item)
-                                  nil))))
-                        ;;FIXME: prev will want to be able to effect how and if of
-                        ;; execution of following.
-                        (let ((sub
-                               (lambda ()
-                                 (let ((res (%proc-branch
-                                             (funcall
-                                              (or *tree-branch-filter* #'identity) item)
-                                             exec)))
-                                   (mapc #'funcall (butlast res))
-                                   (last-car res)))))
-                          (if *tree-breadth-first*
-                              (push sub stor) ;; Store to execute at end
-                              (collect sub))))))) ;; Execute as found
-           (collect (nreverse stor)))))
+                                  (let ((*tree-stack* ts)
+                                        (*tree-index-stack* tis))
+                                    (funcall exec item)
+                                    nil)))))
+                        (progn
+                          (when *tree-process-branches*
+                            (collect
+                                (let ((*tree-leaf-p* nil))
+                                  (lambda ()
+                                    (let ((*tree-stack* ts)
+                                          (*tree-index-stack* tis))
+                                      (funcall exec item)
+                                      nil)))))
+                          ;;FIXME: prev will want to be able to effect how and if of
+                          ;; execution of following.
+                          (let ((sub
+                                 (lambda ()
+                                   (let ((*tree-stack* ts)
+                                         (*tree-index-stack* tis))
+                                     (let ((res (%proc-branch
+                                                 (funcall
+                                                  (or *tree-branch-filter* #'identity)
+                                                  item)
+                                                 exec)))
+                                       (mapc #'funcall (butlast res))
+                                       (last-car res))))))
+                            (if *tree-breadth-first*
+                                (push sub stor) ;; Store to execute at end
+                                (collect sub))))))) ;; Execute as found
+             (collect (nreverse stor)))))
 
      ;;FIXME: Doesn't support switching between depth and breadth first mid-tree.
      (defun %handle-proc-branch-tail (tail)
