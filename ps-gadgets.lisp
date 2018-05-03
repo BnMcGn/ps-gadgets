@@ -236,6 +236,85 @@
            (deep-set-copy (getprop arr (elt path 0))
                           (chain path (slice 1)) value)))))
 
+
+     (defvar *tree-leaf-p* nil "Is the node being processed a leaf or a branch?")
+     (defvar *tree-stack* nil "Pointers to the parentage of the current node. Includes current node.")
+     (defvar *tree-index-stack* nil "Indices that lead to the address of the current node.")
+     (defvar *tree-process-branches* t)
+     (defvar *tree-process-leaves* t)
+     (defvar *tree-breadth-first* nil)
+     (defparameter *tree-leaf-test* nil)
+     (defparameter *tree-branch-filter* nil)
+
+     (defun %proc-branch (branch exec)
+       (collecting
+         (let ((stor nil))
+           (loop
+              for item-tmp in branch
+              for i from 0
+              do
+                (let ((*tree-stack* (cons item-tmp *tree-stack*))
+                      (*tree-index-stack* (cons i *tree-index-stack*))
+                      (item item-tmp))
+                  (if (funcall *tree-leaf-test* item)
+                      (when *tree-process-leaves*
+                        (collect
+                            (let ((*tree-leaf-p* t))
+                              (lambda ()
+                                (funcall exec item)
+                                nil))))
+                      (progn
+                        (when *tree-process-branches*
+                          (collect
+                              (let ((*tree-leaf-p* nil))
+                                (lambda ()
+                                  (funcall exec item)
+                                  nil))))
+                        ;;FIXME: prev will want to be able to effect how and if of
+                        ;; execution of following.
+                        (let ((sub
+                               (lambda ()
+                                 (let ((res (%proc-branch
+                                             (funcall
+                                              (or *tree-branch-filter* #'identity) item)
+                                             exec)))
+                                   (mapc #'funcall (butlast res))
+                                   (last-car res)))))
+                          (if *tree-breadth-first*
+                              (push sub stor) ;; Store to execute at end
+                              (collect sub))))))) ;; Execute as found
+           (collect (nreverse stor)))))
+
+     ;;FIXME: Doesn't support switching between depth and breadth first mid-tree.
+     (defun %handle-proc-branch-tail (tail)
+       (collecting
+         (dolist (item tail)
+           (dolist (new (funcall item))
+             (when (functionp new) (collect new))))))
+
+     (defun call-with-tree (func
+                            tree
+                            &key
+                              (order :depth)
+                              (proc-branch t)
+                              proc-leaf
+                              branch-filter
+                              leaf-test)
+       (unless (member order '(:depth :breadth))
+         (error "Order must be :depth or :breadth"))
+       (let ((*tree-process-branches* proc-branch)
+             (*tree-process-leaves* proc-leaf)
+             (*tree-breadth-first* (eq order :breadth))
+             (*tree-leaf-test* (or leaf-test #'atom))
+             (*tree-branch-filter* branch-filter))
+         (let ((res (%proc-branch
+                     (funcall (or *tree-branch-filter* #'identity) tree) func)))
+           (mapc #'funcall (butlast res))
+           (loop
+              with items = (last-car res)
+              while items
+              do (setf items (%handle-proc-branch-tail items))))))
+
          ))); End ps-gadgets
 
 (defun alist->ps-object-code (alist &key (wrap t))
