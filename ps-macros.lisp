@@ -61,7 +61,7 @@
               `(let ((,var/s (chain ,data (slice ,i (+ ,i ,size)))))
                  ,@body))))))
 
-(defmacro dotree ((var-for-leaf/branch
+(defpsmacro dotree ((var-for-leaf/branch
                    tree
                    &key
                    result

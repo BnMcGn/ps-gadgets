@@ -248,8 +248,8 @@
      (defvar *tree-process-branches* t)
      (defvar *tree-process-leaves* t)
      (defvar *tree-breadth-first* nil)
-     (defparameter *tree-leaf-test* nil)
-     (defparameter *tree-branch-filter* nil)
+     (defvar *tree-leaf-test* nil)
+     (defvar *tree-branch-filter* nil)
 
      (defun %proc-branch (branch exec)
        (collecting
@@ -303,8 +303,8 @@
      (defun %handle-proc-branch-tail (tail)
        (collecting
          (dolist (item tail)
-           (dolist (new (funcall item))
-             (when (functionp new) (collect new))))))
+           (dolist (res (funcall item))
+             (when (functionp res) (collect res))))))
 
      (defun call-with-tree (func
                             tree
