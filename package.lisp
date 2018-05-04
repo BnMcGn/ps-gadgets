@@ -24,5 +24,6 @@
    #:json-post-bind
    #:def-ps-lib
    #:text-bind
-   #:def-class))
+   #:def-class
+   #:dotree))
 
