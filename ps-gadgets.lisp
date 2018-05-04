@@ -123,6 +123,11 @@
              nil
              t)))
 
+     (defun identity (x) x)
+
+     (defun funcall (func &rest params)
+       (apply func params))
+
      (defun relative-to-range (start end num)
        "Returns a value indicating where num is positioned relative to start and end. If num lies between start and end, the return value will be between 0.0 and 1.0."
        (/ (- num start) (- end start)))
@@ -239,7 +244,7 @@
      (defun push-copy (alist val)
        (collecting
            (collect val)
-         (dolist (itm alist)
+         (dolist (itm (ensure-array alist))
            (collect itm))))
 
      (defvar *tree-leaf-p* nil "Is the node being processed a leaf or a branch?")
@@ -292,12 +297,12 @@
                                                   (or *tree-branch-filter* #'identity)
                                                   item)
                                                  exec)))
-                                       (mapc #'funcall (butlast res))
-                                       (last-car res))))))
+                                       (mapcar #'funcall (chain res (slice 0 -1)))
+                                       (getprop res -1))))))
                             (if *tree-breadth-first*
-                                (push sub stor) ;; Store to execute at end
+                                (chain stor (push sub)) ;; Store to execute at end
                                 (collect sub))))))) ;; Execute as found
-             (collect (nreverse stor)))))
+             (collect stor))))
 
      ;;FIXME: Doesn't support switching between depth and breadth first mid-tree.
      (defun %handle-proc-branch-tail (tail)
@@ -323,9 +328,9 @@
              (*tree-branch-filter* branch-filter))
          (let ((res (%proc-branch
                      (funcall (or *tree-branch-filter* #'identity) tree) func)))
-           (mapc #'funcall (butlast res))
+           (mapcar #'funcall (chain res (slice 0 -1)))
            (loop
-              with items = (last-car res)
+              with items = (getprop res -1)
               while items
               do (setf items (%handle-proc-branch-tail items))))))
 
