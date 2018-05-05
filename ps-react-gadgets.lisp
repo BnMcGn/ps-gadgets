@@ -43,16 +43,29 @@
                (if (atom (prop children))
                    (prop children)
                    (throw "jsonLoader should only be used with one child"))))
-          (clone-element
-           child
-           (if (prop store-name)
-               (create-from-list (list (prop store-name) (@ this state)))
-               (@ this state))))
+          (clone-element child (@ this state)))
       component-did-mount
       (lambda ()
-        (do-keyvalue (key url (prop sources))
-          (json-bind (res url)
-              (set-state key res)))))
+        (let ((dispatch (or (prop dispatch) (@ this default-dispatch))))
+          (if (array-p (prop sources))
+             (dolist (url (prop sources))
+               (json-bind (res url)
+                   (dispatch
+                    (state)
+                    (if (prop store-name)
+                        (create-from-list (prop store-name) res)
+                        res))))
+             (do-keyvalue (key url (prop sources))
+               (json-bind (res url)
+                   (let ((stor (create-from-list key res)))
+                     (dispatch
+                      (state)
+                      (if (prop store-name)
+                          (create-from-list (prop store-name) stor)
+                          stor))))))))
+      default-dispatch
+      (lambda (existing incoming)
+        incoming))
 
     (def-component display-if
         (if (if (prop predicate)
