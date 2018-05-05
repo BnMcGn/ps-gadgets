@@ -17,6 +17,8 @@
   (let ((obj-v (gensym)))
     `(let ((,obj-v ,obj))
        (funcall (lambda ()
+                  (unless (eql "object" (typeof ,obj-v))
+                    (throw "Do-keyvalue needs an object"))
                   (for-in (,key ,obj-v)
                           (if (chain ,obj-v (has-own-property ,key))
                               (let ((,val (getprop ,obj-v ,key)))
