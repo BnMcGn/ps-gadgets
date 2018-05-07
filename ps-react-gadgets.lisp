@@ -43,29 +43,36 @@
                (if (atom (prop children))
                    (prop children)
                    (throw "jsonLoader should only be used with one child"))))
-          (clone-element child (@ this state)))
+          (clone-element child (state storage)))
       component-did-mount
       (lambda ()
         (let ((dispatch (or (prop dispatch) (@ this default-dispatch))))
-          (if (array-p (prop sources))
+          (if (arrayp (prop sources))
              (dolist (url (prop sources))
                (json-bind (res url)
-                   (dispatch
-                    (state)
-                    (if (prop store-name)
-                        (create-from-list (prop store-name) res)
-                        res))))
+                   (set-state
+                    storage
+                    (funcall
+                     dispatch
+                     (state storage)
+                     (if (prop store-name)
+                         (create-from-list (prop store-name) res)
+                         res)))))
              (do-keyvalue (key url (prop sources))
                (json-bind (res url)
-                   (let ((stor (create-from-list key res)))
-                     (dispatch
-                      (state)
-                      (if (prop store-name)
-                          (create-from-list (prop store-name) stor)
-                          stor))))))))
+                   (let ((stor (create-from-list (list key res))))
+                     (set-state
+                      :storage
+                      (funcall
+                       dispatch
+                       (state storage)
+                       (if (prop store-name)
+                           (create-from-list (list (prop store-name) stor))
+                           stor)))))))))
       default-dispatch
       (lambda (existing incoming)
-        incoming))
+        incoming)
+      get-initial-state (lambda () (create storage (create))))
 
     (def-component display-if
         (if (if (prop predicate)

@@ -33,7 +33,7 @@
      ;;FIXME: Should check that isn't some other compound type. Else check if is
      ;; known atom type.
      (defun atom (itm)
-       (not (arrayp itm))
+       (not (arrayp itm)))
 
      (defun arrayp (itm)
        (chain -array (is-array itm)))
