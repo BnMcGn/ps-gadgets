@@ -38,6 +38,12 @@
      (defun arrayp (itm)
        (chain -array (is-array itm)))
 
+     (defun numberp (itm)
+       (equal "number" (typeof itm)))
+
+     (defun stringp (itm)
+       (equal "string" (typeof itm)))
+
      (defun ensure-array (arr)
        (cond
          ((or (equal (typeof arr) "undefined") (null arr))
@@ -105,6 +111,13 @@
           get-hours (lambda () (parse-int (/ diff (lisp *js-hour*))))
           get-minutes (lambda () (parse-int (/ diff (lisp *js-minute*))))
           get-seconds (lambda () (parse-int (/ diff (lisp *js-second*)))))))
+
+     (defun url-domain (url)
+       (let* ((part1 (chain url (split "//") 1))
+              (part2 (chain part1 (split "/") 0)))
+         (if (equal "www." (chain part2 (substring 0 4)))
+             (chain part2 (slice 4))
+             part2)))
 
      (defun not-empty (itm)
        (and itm (< 0 (if (eq undefined (@ itm length))
