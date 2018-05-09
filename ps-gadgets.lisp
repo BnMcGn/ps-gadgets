@@ -277,49 +277,46 @@
      (defun %proc-branch (branch exec)
        (collecting
            (let ((stor nil))
-             (loop
-                for item-tmp in branch
-                for i from 0
-                do
-                  (let* ((*tree-stack* (push-copy *tree-stack* item-tmp))
-                         (*tree-index-stack* (push-copy *tree-index-stack* i))
-                         (item item-tmp)
-                         (ts *tree-stack*)
-                         (tis *tree-index-stack*))
-                    (if (funcall *tree-leaf-test* item)
-                        (when *tree-process-leaves*
-                          (collect
-                              (let ((*tree-leaf-p* t))
-                                (lambda ()
-                                  (let ((*tree-stack* ts)
-                                        (*tree-index-stack* tis))
-                                    (funcall exec item)
-                                    nil)))))
-                        (progn
-                          (when *tree-process-branches*
-                            (collect
-                                (let ((*tree-leaf-p* nil))
-                                  (lambda ()
-                                    (let ((*tree-stack* ts)
-                                          (*tree-index-stack* tis))
-                                      (funcall exec item)
-                                      nil)))))
-                          ;;FIXME: prev will want to be able to effect how and if of
-                          ;; execution of following.
-                          (let ((sub
-                                 (lambda ()
-                                   (let ((*tree-stack* ts)
-                                         (*tree-index-stack* tis))
-                                     (let ((res (%proc-branch
-                                                 (funcall
-                                                  (or *tree-branch-filter* #'identity)
-                                                  item)
-                                                 exec)))
-                                       (mapcar #'funcall (chain res (slice 0 -1)))
-                                       (getprop res -1))))))
-                            (if *tree-breadth-first*
-                                (chain stor (push sub)) ;; Store to execute at end
-                                (collect sub))))))) ;; Execute as found
+             (dotimes (i (@ branch length))
+               (let* ((*tree-stack* (push-copy *tree-stack* (getprop branch i)))
+                      (*tree-index-stack* (push-copy *tree-index-stack* i))
+                      (item (getprop branch i))
+                      (ts *tree-stack*)
+                      (tis *tree-index-stack*))
+                 (if (funcall *tree-leaf-test* item)
+                     (when *tree-process-leaves*
+                       (collect
+                           (let ((*tree-leaf-p* t))
+                             (lambda ()
+                               (let ((*tree-stack* ts)
+                                     (*tree-index-stack* tis))
+                                 (funcall exec item)
+                                 nil)))))
+                     (progn
+                       (when *tree-process-branches*
+                         (collect
+                             (let ((*tree-leaf-p* nil))
+                               (lambda ()
+                                 (let ((*tree-stack* ts)
+                                       (*tree-index-stack* tis))
+                                   (funcall exec item)
+                                   nil)))))
+                       ;;FIXME: prev will want to be able to effect how and if of
+                       ;; execution of following.
+                       (let ((sub
+                              (lambda ()
+                                (let ((*tree-stack* ts)
+                                      (*tree-index-stack* tis))
+                                  (let ((res (%proc-branch
+                                              (funcall
+                                               (or *tree-branch-filter* #'identity)
+                                               item)
+                                              exec)))
+                                    (mapcar #'funcall (chain res (slice 0 -1)))
+                                    (getprop res -1))))))
+                         (if *tree-breadth-first*
+                             (chain stor (push sub)) ;; Store to execute at end
+                             (collect sub))))))) ;; Execute as found
              (collect stor))))
 
      ;;FIXME: Doesn't support switching between depth and breadth first mid-tree.
