@@ -113,7 +113,8 @@
           get-seconds (lambda () (parse-int (/ diff (lisp *js-second*)))))))
 
      (defun url-domain (url)
-       (let* ((part1 (chain url (split "//") 1))
+       ;;FIXME: Maybe we should error out if we get a bad URL
+       (let* ((part1 (or (chain url (split "//") 1) ""))
               (part2 (chain part1 (split "/") 0)))
          (if (equal "www." (chain part2 (substring 0 4)))
              (chain part2 (slice 4))
