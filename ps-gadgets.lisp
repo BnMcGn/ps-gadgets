@@ -192,8 +192,9 @@
      (defun copy-merge-all (&rest objects)
        (let ((res (create)))
          (dolist (ob objects)
-           (do-keyvalue (k v ob)
-             (setf (getprop res k) v)))
+           (when ob
+             (do-keyvalue (k v ob)
+               (setf (getprop res k) v))))
          res))
 
      (defun copy-remove-keys (obj keys)
