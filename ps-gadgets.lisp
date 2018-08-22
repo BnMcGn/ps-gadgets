@@ -120,6 +120,35 @@
              (chain part2 (slice 4))
              part2)))
 
+     (defun update-url-parameter (url param value)
+       (let* ((parts (chain url (split "#")))
+              (base (getprop parts 0))
+              (anchor (getprop parts 1))
+              (parts (chain base (split "?")))
+              (base (getprop parts 0))
+              (params (chain (getprop parts 1) (split "&")))
+              (parstring (+ param "=" value))
+              (found nil)
+              (params
+               (mapcar
+                (lambda (par)
+                  (let ((kv (chain par (split "="))))
+                    (if (equal (getprop kv 0) param)
+                        (progn
+                          (setf found t)
+                          parstring)
+                        par)))
+                params))
+              (params
+               (if found
+                   params
+                   (chain params (concat (list parstring))))))
+         (+
+          base
+          "?"
+          (chain params (join "&"))
+          (if anchor (+ "#" anchor) ""))))
+
      (defun not-empty (itm)
        (and itm (< 0 (if (eq undefined (@ itm length))
                          (chain -object (keys itm) length)
