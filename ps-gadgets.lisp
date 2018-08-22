@@ -126,7 +126,9 @@
               (anchor (getprop parts 1))
               (parts (chain base (split "?")))
               (base (getprop parts 0))
-              (params (chain (getprop parts 1) (split "&")))
+              (params (if (getprop parts 1)
+                          (chain (getprop parts 1) (split "&"))
+                          (list)))
               (parstring (+ param "=" value))
               (found nil)
               (params
