@@ -85,7 +85,9 @@
        (let ((pos1 (chain element1 (get-bounding-client-rect)))
              (pos2 (chain element2 (get-bounding-client-rect))))
          (create top (- (@ pos1 top) (@ pos2 top))
-                 left (- (@ pos1 left) (@ pos2 left)))))
+                 left (- (@ pos1 left) (@ pos2 left))
+                 bottom (- (@ pos1 bottom) (@ pos2 bottom))
+                 right (- (@ pos1 right) (@ pos2 right)))))
 
      (defun mapleaves (fn tree &key test)
        "Map a one-argument function FN over each leaf node of the TREE
