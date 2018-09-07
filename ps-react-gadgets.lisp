@@ -38,6 +38,29 @@
         (dolist (x (state callbacks))
           (funcall x))))
 
+    ;;FIXME: This is not operational. Caused mysterious problems for descendants. Not
+    ;; Debugged
+    (def-component where-in-parent
+        (psx
+         (:|React.Fragment|
+           (children-map
+            (prop children)
+            (lambda (child)
+              (if (is-valid-element child)
+                  (clone-element child (@ this state))
+                  child)))))
+      get-initial-state
+      (lambda ()
+        (create where (create) where-p nil))
+      component-did-mount
+      (lambda ()
+        (let ((par (chain document (get-element-by-id (prop parent))))
+              (chld (chain document (get-element-by-id (prop child)))))
+          (when (and par chld)
+            (set-state
+             :where-p t
+             :where (position-difference par chld))))))
+
     (def-component json-loader
         (let ((child
                (if (atom (prop children))
