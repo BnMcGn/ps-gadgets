@@ -62,6 +62,12 @@
                            (lambda (first-char)
                              (chain first-char (to-upper-case))))))
 
+     (defun remove-if (test arr)
+       (collecting
+           (dolist (itm (ensure-array arr))
+             (unless (funcall test itm)
+               (collect itm)))))
+
      (defun remove-if-not (test arr)
        (collecting
          (dolist (itm (ensure-array arr))
@@ -167,6 +173,13 @@
              (setf sig t)
              (break)))
          (values res sig)))
+
+     (defun array-equal (arr1 arr2)
+       (when (eq (@ arr1 length) (@ arr2 length))
+         (dotimes (i (@ arr1 length))
+           (unless (eq (getprop arr1 i) (getprop arr2 i))
+             (return-from array-equal nil)))
+         t))
 
      (defun boolify (val)
        ;;FIXME: Should be using case insensitive test
