@@ -5,12 +5,10 @@
 ;;; "ps-gadgets" goes here. Hacks and glory await!
 
 ;;;FIXME: Should handle docstring
-(defmacro def-ps-lib (name (&rest params) &body body)
+(defmacro define-ps-lib (name (&rest params) &body body)
   "Define a function whose body will contain parenscript"
-  `(gadgets:watch-for-recompile
-     (defun ,name ,params
-       (gadgets:request-watch-on-names '(,name))
-       ,@body)))
+  `(defun ,name ,params
+    ,@body))
 
 
 (defmacro define-dual-code (name &body body)

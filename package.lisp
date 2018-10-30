@@ -22,7 +22,7 @@
    #:collect
    #:json-bind
    #:json-post-bind
-   #:def-ps-lib
+   #:define-ps-lib
    #:text-bind
    #:def-class
    #:dotree
