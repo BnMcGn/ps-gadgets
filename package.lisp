@@ -25,5 +25,9 @@
    #:def-ps-lib
    #:text-bind
    #:def-class
-   #:dotree))
+   #:dotree
+   #:if-ps
+   #:when-ps
+   #:unless-ps
+   #:define-dual-code))
 

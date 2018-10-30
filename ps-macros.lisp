@@ -13,6 +13,25 @@
        ,@body)))
 
 
+(defmacro define-dual-code (name &body body)
+  `(progn
+     (defun ,name () (ps ,@body))
+     ,@body))
+
+(defmacro if-ps (ps-clause lisp-clause)
+  (declare (ignore ps-clause)) lisp-clause)
+
+(defpsmacro if-ps (ps-clause lisp-clause)
+  (declare (ignore lisp-clause)) ps-clause)
+
+(defmacro when-ps (&body code) (declare (ignore code)) nil)
+
+(defpsmacro when-ps (&body code) code)
+
+(defmacro unless-ps (&body code) code)
+
+(defpsmacro unless-ps (&body code) (declare (ignore code)) nil)
+
 (defpsmacro do-keyvalue ((key val obj) &body body)
   (let ((obj-v (gensym)))
     `(let ((,obj-v ,obj))
