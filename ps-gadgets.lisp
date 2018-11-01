@@ -12,7 +12,7 @@
 (defparameter *js-month* (* 30 *js-day*)) ;Ok, things start to get wierd.
 (defparameter *js-year* (* 365 *js-day*))
 
-(def-ps-lib ps-gadgets ()
+(define-ps-lib ps-gadgets ()
   (concatenate 'string
    (ps* *ps-lisp-library*)
    (ps

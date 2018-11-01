@@ -7,7 +7,7 @@
 
 (in-package #:ps-react-gadgets)
 
-(def-ps-lib ps-react-gadgets ()
+(define-ps-lib ps-react-gadgets ()
   (ps
 
     (def-component update-notify

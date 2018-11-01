@@ -5,6 +5,7 @@
 ;;; "ps-gadgets" goes here. Hacks and glory await!
 
 ;;;FIXME: Should handle docstring
+;;FIXME: Should include (ps ...) ?
 (defmacro define-ps-lib (name (&rest params) &body body)
   "Define a function whose body will contain parenscript"
   `(defun ,name ,params
