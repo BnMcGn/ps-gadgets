@@ -216,6 +216,23 @@
            (setf (aref res k) v))
          res))
 
+     ;;Based on code from https://developers.google.com/web/fundamentals/primers/promises
+     (defun json-promise (url)
+       (new (-promise
+             (lambda (resolve reject)
+               (let ((req (new (-x-m-l-http-request))))
+                 (chain req (open "GET" url))
+                 (setf (@ req onload)
+                       (lambda ()
+                         (if (eql 200 (@ req status))
+                             (funcall resolve
+                                      (chain -j-s-o-n (parse (@ req response))))
+                             (funcall reject (-error (@ req status-text))))))
+                 (setf (@ req onerror)
+                       (lambda ()
+                         (funcall reject (-error "Network Error"))))
+                 (chain req (send)))))))
+
      ;;Tools for non-destructive editing. Useful for redux.
 
      (defun shallow-copy (obj)
