@@ -16,9 +16,8 @@
                (if (atom (prop children))
                    (prop children)
                    (throw "updateNotify should only be used with one child"))))
-          (chain -react
-                 (clone-element children
-                                (create :dispatch (@ this new-dispatch)))))
+          (clone-element children
+                         (create :dispatch (@ this new-dispatch))))
       get-initial-state
       (lambda ()
         (create :callbacks []
