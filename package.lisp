@@ -29,5 +29,6 @@
    #:if-ps
    #:when-ps
    #:unless-ps
-   #:define-dual-code))
+   #:define-dual-code
+   #:url-domain))
 

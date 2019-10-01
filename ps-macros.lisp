@@ -152,7 +152,7 @@
           (const-body nil))
       (when constructor
         (setf const-lambda-list (second constructor))
-        (set const-body (cddr constructor)))
+        (setf const-body (cddr constructor)))
       `(progn
          (defun ,name ,const-lambda-list
            ,@const-body)
