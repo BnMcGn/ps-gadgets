@@ -6,9 +6,11 @@
   :license "Specify license here"
   :depends-on (#:parenscript
                #:gadgets
-               #:alexandria)
+               #:alexandria
+               #:trivial-types)
   :serial t
   :components ((:file "package")
                (:file "ps-macros")
+               (:file "as-ps-data")
                (:file "ps-gadgets")))
 
