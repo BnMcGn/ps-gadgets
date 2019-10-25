@@ -31,5 +31,6 @@
    #:unless-ps
    #:define-dual-code
    #:url-domain
-   #:as-ps-data))
+   #:as-ps-data
+   #:*assume-list*))
 
