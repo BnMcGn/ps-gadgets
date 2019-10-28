@@ -13,8 +13,9 @@
 
 (defmethod as-ps-data ((item list))
   (cond
+    ((not item) nil)
     ((and (not *assume-list*) (trivial-types:association-list-p item))
-     (list* 'create (mapcan (lambda (x) (list (as-ps-data (car x)) (as-ps-data (cdr x)))) item)))
+      (list* 'create (mapcan (lambda (x) (list (as-ps-data (car x)) (as-ps-data (cdr x)))) item)))
     ;;Plists are too vague. Convert to hash or alist.
     ;;((trivial-types:property-list-p item)
     ;;(list* 'create (mapcar #'as-ps-data item))))
