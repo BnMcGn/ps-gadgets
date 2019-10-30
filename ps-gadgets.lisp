@@ -26,7 +26,7 @@
 
      (defun grab (thing)
        (if (@ window grabbed)
-           (push thing (@ window grabbed))
+           (chain window grabbed (push thing))
            (setf (@ window grabbed) (list thing)))
        thing)
 
@@ -52,6 +52,9 @@
           arr)
          (t ([] arr))))
 
+     (defun array-cdr (arr)
+       (chain (ensure-array arr) (slice 1)))
+
      (defun ensure-string (str)
        (if (equal (typeof str) "string")
            str
@@ -73,6 +76,13 @@
          (dolist (itm (ensure-array arr))
            (when (funcall test itm)
              (collect itm)))))
+
+     (defun some (pred first-seq &rest more-seqs)
+       (loop for i from 0
+             for itm in first-seq
+             for res = (apply pred itm (mapcar (lambda (x) (elt x i)) more-seqs))
+             until res
+             finally (return res)))
 
      (defun range (start &optional stop (step 1))
        (let ((start (if stop start 0))
