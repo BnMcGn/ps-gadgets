@@ -15,6 +15,7 @@
 (defmethod as-ps-data ((item string)) item)
 (defmethod as-ps-data ((item number)) item)
 (defmethod as-ps-data ((item symbol)) (ps:symbol-to-js-string item))
+(defmethod as-ps-data ((item null)) "null")
 
 (defmethod as-ps-data ((item list))
   (cond
