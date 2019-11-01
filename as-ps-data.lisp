@@ -9,7 +9,12 @@
   (:documentation
    "Convert a tree of lisp data into the equivalent tree of Parenscript/Javascript data."))
 
-(defmethod as-ps-data ((item t)) item)
+;;It might be safer to not have this: That way we find out if something odd is being sent.
+;;(defmethod as-ps-data ((item t)) item)
+
+(defmethod as-ps-data ((item string)) item)
+(defmethod as-ps-data ((item number)) item)
+(defmethod as-ps-data ((item symbol)) (ps:symbol-to-js-string item))
 
 (defmethod as-ps-data ((item list))
   (cond
