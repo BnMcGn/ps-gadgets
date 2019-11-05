@@ -45,14 +45,14 @@
           (clone-element child (state storage)))
       component-did-mount
       (lambda ()
-        (let ((dispatch (or (prop dispatch) (@ this default-dispatch))))
+        (let ((reducer (or (prop reducer) (@ this default-reducer))))
           (if (arrayp (prop sources))
              (dolist (url (prop sources))
                (json-bind (res url)
                    (set-state
                     storage
                     (funcall
-                     dispatch
+                     reducer
                      (state storage)
                      (if (prop store-name)
                          (create-from-list (prop store-name) res)
@@ -63,12 +63,12 @@
                      (set-state
                       :storage
                       (funcall
-                       dispatch
+                       reducer
                        (state storage)
                        (if (prop store-name)
                            (create-from-list (list (prop store-name) stor))
                            stor)))))))))
-      default-dispatch
+      default-reducer
       (lambda (existing incoming)
         incoming)
       get-initial-state (lambda () (create storage (create))))
