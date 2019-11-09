@@ -138,6 +138,51 @@
              (chain part2 (slice 4))
              part2)))
 
+     (defun url-parameters-location (url)
+       (let ((start (chain url (index-of "?")))
+             (end (chain url (index-of "#"))))
+         (when (eq -1 start) (setf start undefined))
+         (when (eq -1 end) (setf end undefined))
+         (when (and end start (> start end)) (setf start undefined))
+         (when start (incf start))
+         (list start end)))
+
+     (defun url-parameters (url)
+       (let* ((res (create))
+              (loc (url-parameters-location url))
+              (parstring (when (or (@ loc 0) (@ loc 1))
+                             (chain url (slice (@ loc 0) (@ loc 1))))))
+         (when parstring
+           (dolist (par (chain parstring (split "&")))
+            (let ((pair (chain par (split "="))))
+              (setf (getprop res (decode-u-r-i-component (@ pair 0)))
+                    (decode-u-r-i-component (@ pair 1))))))
+         res))
+
+     (defun url-parameter-string-from-object (obj)
+       (chain
+        (collecting
+          (do-keyvalue (k v obj)
+            (collect (+ (encode-u-r-i-component k) "=" (encode-u-r-i-component v)))))
+        (join "&")))
+
+     (defun replace-url-parameters (url new-param-string)
+       (if (< 0 (@ new-param-string length))
+           (let* ((loc (url-parameters-location url))
+                  (tail (if (@ loc 1)
+                            (chain url (slice (@ loc 1)))
+                            ""))
+                  (head (chain url (slice undefined (if (@ loc 0) (1- (@ loc 0)) (@ loc 1))))))
+             (+ head (if (@ loc 0) "" "?") new-param-string tail))
+           url))
+
+     (defun set-url-parameters (url obj)
+       "Return a copy of url with the keys in obj set as parameters. Overwrite parameters in url when names are shared, but retain other parameters from url."
+       (let ((existing (url-parameters url)))
+         (do-keyvalue (k v obj)
+           (setf (getprop existing k) v))
+         (replace-url-parameters url (url-parameter-string-from-object existing))))
+
      (defun update-url-parameter (url param value)
        (let* ((parts (chain url (split "#")))
               (base (getprop parts 0))
