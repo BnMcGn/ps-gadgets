@@ -109,8 +109,19 @@
              ((equal 0 ,val) ,zero-clause)
              (t ,plus-clause)))));end eval-always
 
-(defpsmacro json-bind ((results url &rest params) &body body)
-  `(chain $ (get-j-s-o-n ,url (create ,@params) (lambda (,results) ,@body))))
+(defpsmacro json-bind ((results url (&rest params) &key error-func) &body body)
+  (let ((reqsym (gensym "request")))
+    `(let ((,reqsym (new -x-m-l-http-request)))
+       (chain ,reqsym (open "GET" (set-url-parameters ,url ,params) true))
+       (setf (@ ,reqsym onload)
+             (lambda ()
+               (if (< 199 (@ this status) 400)
+                   (let ((,results (chain -j-s-o-n (parse (@ this response)))))
+                     ,@body)
+                   ;;FIXME: This might need some touching up
+                   ,@(when error-func `((funcall ,error-func))))))
+       (setf (@ ,reqsym onerror) ,error-func)
+       (chain ,reqsym (send)))))
 
 (defpsmacro json-post-bind ((results url data &rest params) &body body)
   `(chain $ (ajax
