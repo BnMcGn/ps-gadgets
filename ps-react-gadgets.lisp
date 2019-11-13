@@ -37,37 +37,37 @@
         (dolist (x (state callbacks))
           (funcall x))))
 
+    ;;Props: sources, reducer, store-name
     (def-component json-loader
         (let ((child
                (if (atom (prop children))
                    (prop children)
                    (throw "jsonLoader should only be used with one child"))))
-          (clone-element child (state storage)))
+          (clone-element child (if (prop store-name)
+                                   (create-from-list (prop store-name) (state storage))
+                                   (state storage))))
       component-did-mount
       (lambda ()
         (let ((reducer (or (prop reducer) (@ this default-reducer))))
           (if (arrayp (prop sources))
              (dolist (url (prop sources))
-               (json-bind (res url)
+               (json-bind (res url () :error-func (lambda () (@ this status)))
                    (set-state
                     storage
                     (funcall
                      reducer
                      (state storage)
-                     (if (prop store-name)
-                         (create-from-list (prop store-name) res)
-                         res)))))
+                     res)))))
              (do-keyvalue (key url (prop sources))
-               (json-bind (res url)
-                   (let ((stor (create-from-list (list key res))))
-                     (set-state
-                      :storage
-                      (funcall
-                       reducer
-                       (state storage)
-                       (if (prop store-name)
-                           (create-from-list (list (prop store-name) stor))
-                           stor)))))))))
+               (let ((currkey key))
+                 (json-bind (res url ())
+                    (let ((stor (create-from-list (list currkey res))))
+                      (set-state
+                       :storage
+                       (funcall
+                        reducer
+                        (state storage)
+                        stor))))))))
       default-reducer
       (lambda (existing incoming)
         incoming)
