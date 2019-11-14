@@ -44,7 +44,7 @@
                    (prop children)
                    (throw "jsonLoader should only be used with one child"))))
           (clone-element child (if (prop store-name)
-                                   (create-from-list (prop store-name) (state storage))
+                                   (create-from-list (list (prop store-name) (state storage)))
                                    (state storage))))
       component-did-mount
       (lambda ()
