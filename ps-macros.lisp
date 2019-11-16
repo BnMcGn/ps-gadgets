@@ -112,7 +112,7 @@
 (defpsmacro json-bind ((results url (&rest params) &key error-func) &body body)
   (let ((reqsym (gensym "request")))
     `(let ((,reqsym (new -x-m-l-http-request)))
-       (chain ,reqsym (open "GET" (set-url-parameters ,url ,params) true))
+       (chain ,reqsym (open "GET" (set-url-parameters ,url (create ,@params)) true))
        (setf (@ ,reqsym onload)
              (lambda ()
                (if (< 199 (@ this status) 400)
