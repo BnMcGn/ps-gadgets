@@ -6,6 +6,7 @@
   :license "Specify license here"
   :depends-on (#:parenscript
                #:gadgets
+               #:cl-utilities
                #:alexandria
                #:trivial-types)
   :serial t

@@ -441,10 +441,10 @@
 
      ;;FIXME: Doesn't support switching between depth and breadth first mid-tree.
      (defun %handle-proc-branch-tail (tail)
-       (collecting
+       (cl-utilities:collecting
          (dolist (item tail)
            (dolist (res (funcall item))
-             (when (functionp res) (collect res))))))
+             (when (functionp res) (cl-utilities:collect res))))))
 
      (defun call-with-tree (func
                             tree
@@ -473,9 +473,9 @@
 
 (defun alist->ps-object-code (alist &key (wrap t))
   (let ((res
-   (gadgets:collecting
+   (cl-utilities:collecting
        (dolist (item alist)
-         (gadgets:collect (car item))
-         (gadgets:collect (cdr item))))))
+         (cl-utilities:collect (car item))
+         (cl-utilities:collect (cdr item))))))
     (if wrap (cons 'ps:create res) res)))
 

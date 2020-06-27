@@ -28,8 +28,8 @@
     (t (list* 'list (mapcar #'as-ps-data item)))))
 
 (defmethod as-ps-data ((item hash-table))
-  (list* 'create (gadgets:collecting
+  (list* 'create (cl-utilities:collecting
                    (maphash (lambda (k v)
-                              (gadgets:collect (as-ps-data k))
-                              (gadgets:collect (as-ps-data v))) item))))
+                              (cl-utilities:collect (as-ps-data k))
+                              (cl-utilities:collect (as-ps-data v))) item))))
 
