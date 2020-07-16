@@ -80,4 +80,18 @@
             (prop children)
             null))
 
+    (def-component error-boundary
+        (if (state has-error)
+            (psx (:h1 :style (create :text-color "red") "Wrongness has occurred!"))
+            (prop children))
+      get-initial-state
+      (lambda ()
+        (create 'has-error nil))
+      component-did-catch
+      (lambda (err errinfo)
+        (say "Wrongness warning:")
+        (say err)
+        (say errinfo)
+        (set-state has-error t)))
+
     ))
