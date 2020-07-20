@@ -39,13 +39,12 @@
 
     ;;Props: sources, reducer, store-name
     (def-component json-loader
-        (let ((child
-               (if (atom (prop children))
-                   (prop children)
-                   (throw "jsonLoader should only be used with one child"))))
-          (clone-element child (if (prop store-name)
-                                   (create-from-list (list (prop store-name) (state storage)))
-                                   (state storage))))
+        (collecting
+          (dolist (child (ensure-array (prop children)))
+            (collect
+                (clone-element child (if (prop store-name)
+                                         (create-from-list (list (prop store-name) (state storage)))
+                                         (state storage))))))
       component-did-mount
       (lambda ()
         (let ((reducer (or (prop reducer) (@ this default-reducer))))
