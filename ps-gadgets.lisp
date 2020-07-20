@@ -55,6 +55,10 @@
      (defun array-cdr (arr)
        (chain (ensure-array arr) (slice 1)))
 
+     (defun unique (arr)
+       (chain arr (filter (lambda (val ind self)
+                            (eq (chain self (index-of val)) ind)))))
+
      (defun ensure-string (str)
        (if (equal (typeof str) "string")
            str
@@ -93,9 +97,9 @@
                         (and (< step 0) (<= start stop))))
              ([])
              (collecting
-               (while (funcall stop-p start)
-                 (collect start)
-                 (incf start step)))))))
+               (loop while (funcall stop-p start)
+                 do (collect start)
+                 do (incf start step)))))))
 
      (defun position-difference (element1 element2)
        (let ((pos1 (chain element1 (get-bounding-client-rect)))
