@@ -110,13 +110,19 @@
              (t ,plus-clause)))));end eval-always
 
 (defpsmacro json-bind ((results url (&rest params) &key error-func) &body body)
-  (let ((reqsym (gensym "request")))
-    `(let ((,reqsym (new -x-m-l-http-request)))
-       (chain ,reqsym (open "GET" (set-url-parameters ,url (create ,@params)) true))
+  (let ((reqsym (gensym "request"))
+        (urlsym (gensym "url")))
+    `(let ((,reqsym (new -x-m-l-http-request))
+           (,urlsym (set-url-parameters ,url (create ,@params))))
+       (chain ,reqsym (open "GET" ,urlsym true))
        (setf (@ ,reqsym onload)
              (lambda ()
                (if (< 199 (@ this status) 400)
-                   (let ((,results (chain -j-s-o-n (parse (@ this response)))))
+                   (let ((,results
+                           (try (chain -j-s-o-n (parse (@ this response)))
+                                (:catch (err) (say "JSON parse error")
+                                        (say err)
+                                        (say ,urlsym)) )))
                      ,@body)
                    ;;FIXME: This might need some touching up
                    ,@(when error-func `((funcall ,error-func))))))
