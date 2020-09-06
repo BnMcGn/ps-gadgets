@@ -119,6 +119,9 @@
          (when tree
            (rec tree))))
 
+     (defun random-element (arr)
+       (getprop arr (chain -math (floor (* (chain -math (random)) (@ arr length))))))
+
      (defun flatten (tree)
        (collecting
            (mapleaves #'collect tree)))
