@@ -2,7 +2,7 @@
 
 (in-package #:ps-gadgets)
 
-;;; "webhax" goes here. Hacks and glory await!
+;;; "ps-gadgets" goes here. Hacks and glory await!
 
 (defparameter *js-second* 1000)
 (defparameter *js-minute* (* 60 *js-second*))
