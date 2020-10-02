@@ -11,12 +11,8 @@
   (ps
 
     (def-component update-notify
-        (defun constructor (props)
-          (super props)
-          (setf (@ this state)
-                (create :callbacks []
-                        :olddispatch (@ props children props dispatch)))
-          this)
+        ((set-state :callbacks []
+                    :olddispatch (@ props children props dispatch)))
       (defun render ()
         ;;FIXME: Consider implementing multi-child.
         (let ((children
@@ -24,7 +20,7 @@
                     (prop children)
                     (throw "updateNotify should only be used with one child"))))
           (react clone-element children
-                         (create :dispatch (@ this new-dispatch)))))
+                 (create :dispatch (@ this new-dispatch)))))
       (defun new-dispatch (action)
         ;;FIXME: Review callback storage. Maybe should delete old.
         (if (eq (@ action type) 'set-callback)
@@ -40,18 +36,15 @@
 
     ;;Props: sources, reducer, store-name
     (def-component json-loader
-        (defun constructor (props)
-          (super props)
-          (setf (@ this state)
-                (create storage (create)))
-          this)
+        ((set-state :storage (create)))
       (defun render ()
         (collecting
           (dolist (child (ensure-array (prop children)))
             (collect
-                (react clone-element child (if (prop store-name)
-                                         (create-from-list (list (prop store-name) (state storage)))
-                                         (state storage)))))))
+                (react clone-element child (if
+                                            (prop store-name)
+                                            (create-from-list (list (prop store-name) (state storage)))
+                                            (state storage)))))))
       (defun component-did-mount ()
         (let ((reducer (or (prop reducer) (@ this default-reducer))))
           (if (arrayp (prop sources))
@@ -77,19 +70,16 @@
         incoming))
 
     (def-component display-if
-        (defun render ()
-          (if (if (prop predicate)
-                  (funcall (prop predicate) (@ this props))
-                  (prop test))
-              (prop children)
-              null)))
+      nil
+      (defun render ()
+        (if (if (prop predicate)
+                (funcall (prop predicate) (@ this props))
+                (prop test))
+            (prop children)
+            null)))
 
     (def-component error-boundary
-        (defun constructor (props)
-          (super props)
-          (setf (@ this state)
-                (create 'has-error nil))
-          this)
+        ((set-state :has-error nil))
       (defun render ()
         (if (state has-error)
             (psx (:h1 :style (create :text-color "red") "Wrongness has occurred!"))
