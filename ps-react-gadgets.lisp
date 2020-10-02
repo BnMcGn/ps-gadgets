@@ -1,7 +1,7 @@
 ;;;; ps-react-gadgets.lisp
 
 (defpackage #:ps-react-gadgets
-  (:use #:cl #:parenscript #:reacl #:ps-lib-tool))
+  (:use #:cl #:parenscript #:reacl #:ps-lib-tool #:ps-gadgets))
 
 (in-package #:ps-react-gadgets)
 
@@ -23,7 +23,7 @@
                 (if (atom (prop children))
                     (prop children)
                     (throw "updateNotify should only be used with one child"))))
-          (clone-element children
+          (react clone-element children
                          (create :dispatch (@ this new-dispatch)))))
       (defun new-dispatch (action)
         ;;FIXME: Review callback storage. Maybe should delete old.
@@ -49,7 +49,7 @@
         (collecting
           (dolist (child (ensure-array (prop children)))
             (collect
-                (clone-element child (if (prop store-name)
+                (react clone-element child (if (prop store-name)
                                          (create-from-list (list (prop store-name) (state storage)))
                                          (state storage)))))))
       (defun component-did-mount ()
