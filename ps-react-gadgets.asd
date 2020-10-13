@@ -8,7 +8,7 @@
                #:gadgets
                #:ps-gadgets
                #:alexandria
-               #:cl-react)
+               #:reacl)
   :serial t
   :components ((:file "ps-react-gadgets")))
 
