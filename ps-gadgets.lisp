@@ -12,10 +12,14 @@
 (defparameter *js-month* (* 30 *js-day*)) ;Ok, things start to get wierd.
 (defparameter *js-year* (* 365 *js-day*))
 
-(define-ps-lib ps-gadgets ()
-  (concatenate 'string
-   (ps* *ps-lisp-library*)
-   (ps
+(def-ps-package ps-lisp-library
+  :code (ps* *ps-lisp-library*)
+  :export '(#:mapcar #:map-into #:map #:member #:set-difference #:reduce #:nconc))
+
+(def-ps-package ps-gadgets
+  :ps-requirements '(ps-lisp-library)
+  :code
+  (ps
 
      (setf *whitespace-characters*
        (lisp (list* 'list gadgets:*whitespace-characters*)))
@@ -51,6 +55,11 @@
          ((chain arr (has-own-property 'length))
           arr)
          (t ([] arr))))
+
+     (defun get/d (obj key value)
+       (if (eq (typeof (getprop obj key)) "undefined")
+           value
+           (getprop obj key)))
 
      (defun array-cdr (arr)
        (chain (ensure-array arr) (slice 1)))
@@ -118,6 +127,25 @@
                       (mapcar #'rec node))))
          (when tree
            (rec tree))))
+
+     (defun try-awhile (predicate &key (sleep 1) (wait 1000) on-success on-fail)
+       "Will continue to call predicate until either it returns success or a given amount of time elapses. Duration can be set with the :wait keyword. It defaults to 1000 milliseconds. Try-awhile will sleep between predicate calls unless the :sleep keyword is set to nil. Default sleep is 100 milliseconds.
+
+Try-awhile will return the predicate value on success or nil on failure. If a function is supplied to the :on-success argument, it will be executed if the predicate succeeds and its result will be returned instead of the predicate result. The :on-fail keyword may be used to supply a function that will be run if the time elapses without a predicate success. It's result will be returned instead of the default nil."
+       ;;FIXME: Needs to return? a promise
+       (let ((start-time (chain -date (now))))
+         (defun func ()
+           (let ((result (funcall predicate)))
+             (if result
+                 (if on-success
+                     (funcall on-success)
+                     result)
+                 (if (< (+ start-time wait) (chain -date (now)))
+                     (if on-fail
+                         (funcall on-fail)
+                         nil)
+                     (set-timeout func sleep)))))
+         (func)))
 
      (defun random-element (arr)
        (getprop arr (chain -math (floor (* (chain -math (random)) (@ arr length))))))
@@ -476,7 +504,7 @@
               while items
               do (setf items (%handle-proc-branch-tail items))))))
 
-         ))); End ps-gadgets
+         )); End ps-gadgets
 
 (defun alist->ps-object-code (alist &key (wrap t))
   (let ((res

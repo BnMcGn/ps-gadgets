@@ -8,7 +8,8 @@
                #:gadgets
                #:cl-utilities
                #:alexandria
-               #:trivial-types)
+               #:trivial-types
+               #:ps-lib-tool)
   :serial t
   :components ((:file "package")
                (:file "ps-macros")

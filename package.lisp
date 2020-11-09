@@ -1,7 +1,7 @@
 ;;;; package.lisp
 
 (defpackage #:ps-gadgets
-  (:use #:cl #:parenscript)
+  (:use #:cl #:parenscript #:ps-lib-tool)
   (:export
    #:do-keyvalue
    #:collecting-string
