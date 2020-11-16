@@ -158,6 +158,28 @@
                                            error)))
                      ,@params))))
 
+(defpsmacro json-if ((results url (&rest data) &key post (parse t)) success-clause error-clause)
+  (let ((reqsym (gensym "request"))
+        (urlsym (gensym "url"))
+        (errsym (gensym "error_func")))
+    `(let ((,reqsym (new -x-m-l-http-request))
+           (,urlsym (set-url-parameters ,url (create ,@data)))
+           (,errsym (lambda (,results) ,error-clause)))
+       (chain ,reqsym (open ,(if post "POST" "GET") ,urlsym true))
+       (setf (@ ,reqsym onload)
+             (lambda ()
+               (if (< 199 (@ this status) 400)
+                   ,(if parse
+                        `(try (let ((,results (chain -j-s-o-n (parse (@ this response)))))
+                                ,@success-clause)
+                              (:catch (err) (funcall ,errsym err)))
+                        `(let ((,results (@ this response)))
+                           ,@success-clause))
+                   ;;FIXME: kind of crude
+                   (funcall ,errsym this))))
+       (setf (@ ,reqsym onerror) ,errsym)
+       (chain ,reqsym (send)))))
+
 (defpsmacro def-class (name (&optional extends) &body body)
   (multiple-value-bind (constructor others)
       (gadgets:splitfilter (lambda (x) (string-equal (car x) 'constructor)) body)

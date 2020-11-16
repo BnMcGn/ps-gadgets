@@ -32,5 +32,6 @@
    #:define-dual-code
    #:url-domain
    #:as-ps-data
-   #:*assume-list*))
+   #:*assume-list*
+   #:json-if))
 
