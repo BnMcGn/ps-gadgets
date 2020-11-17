@@ -171,10 +171,10 @@
                (if (< 199 (@ this status) 400)
                    ,(if parse
                         `(try (let ((,results (chain -j-s-o-n (parse (@ this response)))))
-                                ,@success-clause)
+                                ,success-clause)
                               (:catch (err) (funcall ,errsym err)))
                         `(let ((,results (@ this response)))
-                           ,@success-clause))
+                           ,success-clause))
                    ;;FIXME: kind of crude
                    (funcall ,errsym this))))
        (setf (@ ,reqsym onerror) ,errsym)
