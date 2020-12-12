@@ -56,6 +56,18 @@
           arr)
          (t ([] arr))))
 
+    ;;FIXME: maybe should use version from lodash
+    (defun array-equal (a b)
+      (cond
+        ((eq a b) t)
+        ((or (not a) (not b)) false)
+        ((not (eq (@ a length) (@ b length))) false)
+        (t (progn
+             (dotimes (i (@ a length))
+               (when (not (eql (getprop a i) (getprop b i)))
+                 (return false)))
+             t))))
+
      (defun get/d (obj key value)
        (if (eq (typeof (getprop obj key)) "undefined")
            value
@@ -64,14 +76,17 @@
      (defun array-cdr (arr)
        (chain (ensure-array arr) (slice 1)))
 
-     (defun unique (arr)
+     (defun unique (arr &key (test (lambda (a b) (eql a b))))
        (chain arr (filter (lambda (val ind self)
-                            (eq (chain self (index-of val)) ind)))))
+                            (eq (chain self (find-index (lambda (itm) (test val itm)))) ind)))))
 
      (defun ensure-string (str)
        (if (equal (typeof str) "string")
            str
            ""))
+
+    (defun copy-string (str)
+      (chain (+ ' ' str) (slice 1)))
 
      (defun capitalize-first (str)
        (chain str (replace (regex "^[a-z]")
