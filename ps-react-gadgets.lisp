@@ -73,7 +73,13 @@
       nil
       (defun render ()
         (let ((provider (@ (prop context) -provider)))
-          (psx (:provider :value (getprop (propref) (prop propname)) (prop children))))))
+          (psx (:provider
+                :value (getprop (propsref) (prop propname))
+                (collecting
+                  (dolist (child (ensure-array (prop children)))
+                    (collect
+                        (react clone-element child
+                               (copy-remove-keys (propsref) '(:context :propname)))))))))))
 
     (def-component display-if
       nil

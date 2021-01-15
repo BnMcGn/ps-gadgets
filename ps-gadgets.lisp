@@ -318,7 +318,7 @@ Try-awhile will return the predicate value on success or nil on failure. If a fu
      (defun create-from-list (keys-and-values)
        (let ((res (create)))
          (do-window ((k v) keys-and-values :step 2)
-           (setf (aref res k) v))
+           (setf (getprop res k) v))
          res))
 
      ;;Based on code from https://developers.google.com/web/fundamentals/primers/promises
