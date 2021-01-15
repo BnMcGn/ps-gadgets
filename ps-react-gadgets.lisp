@@ -69,6 +69,12 @@
       (defun default-reducer (existing incoming)
         incoming))
 
+    (def-component prop-to-context
+      nil
+      (defun render ()
+        (let ((provider (@ (prop context) -provider)))
+          (psx (:provider :value (getprop (propref) (prop propname)) (prop children))))))
+
     (def-component display-if
       nil
       (defun render ()
