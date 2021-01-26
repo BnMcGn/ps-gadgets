@@ -55,17 +55,17 @@
                             (funcall
                              reducer
                              (state storage)
-                             res)))))
-          (do-keyvalue (key url (prop sources))
-            (let ((currkey key))
-              (json-bind (res url ())
-                         (let ((stor (create-from-list (list currkey res))))
-                           (set-state
-                            :storage
-                            (funcall
-                             reducer
-                             (state storage)
-                             stor))))))))
+                             res))))
+              (do-keyvalue (key url (prop sources))
+                (let ((currkey key))
+                  (json-bind (res url ())
+                             (let ((stor (create-from-list (list currkey res))))
+                               (set-state
+                                :storage
+                                (funcall
+                                 reducer
+                                 (state storage)
+                                 stor)))))))))
       (defun default-reducer (existing incoming)
         incoming))
 
