@@ -56,6 +56,9 @@
           arr)
          (t ([] arr))))
 
+    (defun has-property (obj key)
+      (chain obj (has-own-property key)))
+
     ;;FIXME: maybe should use version from lodash
     (defun array-equal (a b)
       (cond
