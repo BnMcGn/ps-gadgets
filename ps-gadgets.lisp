@@ -9,7 +9,7 @@
 (defparameter *js-hour* (* 60 *js-minute*))
 (defparameter *js-day* (* 24 *js-hour*))
 (defparameter *js-week* (* 7 *js-day*))
-(defparameter *js-month* (* 30 *js-day*)) ;Ok, things start to get wierd.
+(defparameter *js-month* (* 30 *js-day*)) ;Ok, things start to get weird.
 (defparameter *js-year* (* 365 *js-day*))
 
 (def-ps-package ps-lisp-library
@@ -168,9 +168,14 @@ Try-awhile will return the predicate value on success or nil on failure. If a fu
      (defun random-element (arr)
        (getprop arr (chain -math (floor (* (chain -math (random)) (@ arr length))))))
 
-     (defun flatten (tree)
-       (collecting
-           (mapleaves #'collect tree)))
+    (defun flatten (tree)
+      (collecting
+        (labels ((proc (itm)
+                   (if (atom itm)
+                       (collect itm)
+                       (dolist (i itm)
+                         (proc i)))))
+          (proc tree))))
 
      (defun ago (date-obj)
        (let ((diff (- (chain -date (now)) date-obj)))
