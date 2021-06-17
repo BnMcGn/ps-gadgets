@@ -10,17 +10,17 @@
   :code
   (ps
 
+    (defun clone-children (children props)
+      (collecting
+        (dolist (child (ensure-array children))
+          (collect
+              (react clone-element child props)))))
+
     (def-component update-notify
         ((set-state :callbacks []
                     :olddispatch (@ props children props dispatch)))
       (defun render ()
-        ;;FIXME: Consider implementing multi-child.
-        (let ((children
-                (if (atom (prop children))
-                    (prop children)
-                    (throw "updateNotify should only be used with one child"))))
-          (react clone-element children
-                 (create :dispatch (@ this new-dispatch)))))
+        (clone-children (prop children) (create :dispatch (@ this new-dispatch))))
       (defun new-dispatch (action)
         ;;FIXME: Review callback storage. Maybe should delete old.
         (if (eq (@ action type) 'set-callback)
@@ -38,13 +38,11 @@
     (def-component json-loader
         ((set-state :storage (create)))
       (defun render ()
-        (collecting
-          (dolist (child (ensure-array (prop children)))
-            (collect
-                (react clone-element child (if
-                                            (prop store-name)
-                                            (create-from-list (list (prop store-name) (state storage)))
-                                            (state storage)))))))
+        (clone-children (prop children)
+                        (if
+                         (prop store-name)
+                         (create-from-list (list (prop store-name) (state storage)))
+                         (state storage))))
       (defun component-did-mount ()
         (let ((reducer (or (prop reducer) (@ this default-reducer))))
           (if (arrayp (prop sources))
