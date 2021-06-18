@@ -71,42 +71,46 @@
                  (return false)))
              t))))
 
-     (defun get/d (obj key value)
-       (if (eq (typeof (getprop obj key)) "undefined")
-           value
-           (getprop obj key)))
+    (defun get/d (obj key value)
+      (if (eq (typeof (getprop obj key)) "undefined")
+          value
+          (getprop obj key)))
 
-     (defun array-cdr (arr)
-       (chain (ensure-array arr) (slice 1)))
+    (defun array-cdr (arr)
+      (chain (ensure-array arr) (slice 1)))
 
-     (defun unique (arr &key (test (lambda (a b) (eql a b))))
-       (chain arr (filter (lambda (val ind self)
-                            (eq (chain self (find-index (lambda (itm) (test val itm)))) ind)))))
+    (defun unique (arr &key (test (lambda (a b) (eql a b))))
+      (chain arr (filter (lambda (val ind self)
+                           (eq (chain self (find-index (lambda (itm) (test val itm)))) ind)))))
 
-     (defun ensure-string (str)
-       (if (equal (typeof str) "string")
-           str
-           ""))
+    (defun ensure-string (str)
+      (if (equal (typeof str) "string")
+          str
+          ""))
 
     (defun copy-string (str)
-      (chain (+ ' ' str) (slice 1)))
+      (chain (+ " " str) (slice 1)))
 
-     (defun capitalize-first (str)
-       (chain str (replace (regex "^[a-z]")
-                           (lambda (first-char)
-                             (chain first-char (to-upper-case))))))
+    (defun capitalize-first (str)
+      (chain str (replace (regex "^[a-z]")
+                          (lambda (first-char)
+                            (chain first-char (to-upper-case))))))
 
-     (defun remove-if (test arr)
-       (collecting
-           (dolist (itm (ensure-array arr))
-             (unless (funcall test itm)
-               (collect itm)))))
+    (defun newline ()
+      "Because parenscript doesn't allow \n"
+      (chain -string (from-char-code 10)))
 
-     (defun remove-if-not (test arr)
-       (collecting
-         (dolist (itm (ensure-array arr))
-           (when (funcall test itm)
-             (collect itm)))))
+    (defun remove-if (test arr)
+      (collecting
+        (dolist (itm (ensure-array arr))
+          (unless (funcall test itm)
+            (collect itm)))))
+
+    (defun remove-if-not (test arr)
+      (collecting
+        (dolist (itm (ensure-array arr))
+          (when (funcall test itm)
+            (collect itm)))))
 
      (defun some (pred first-seq &rest more-seqs)
        (loop for i from 0
