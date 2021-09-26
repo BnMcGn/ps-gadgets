@@ -45,8 +45,18 @@
      (defun numberp (itm)
        (equal "number" (typeof itm)))
 
-     (defun stringp (itm)
+    (defun string-object-p (itm)
+      (and (equal (typeof itm) "object")
+           (instanceof itm -string)))
+
+    (defun string-object-to-literal (obj)
+      (chain obj (to-string)))
+
+     (defun string-literal-p (itm)
        (equal "string" (typeof itm)))
+
+    (defun stringp (itm)
+      (or (string-literal-p itm) (string-object-p itm)))
 
      (defun ensure-array (arr)
        (cond
@@ -67,7 +77,7 @@
         ((not (eq (@ a length) (@ b length))) false)
         (t (progn
              (dotimes (i (@ a length))
-               (when (not (eql (getprop a i) (getprop b i)))
+               (when (not (equal (getprop a i) (getprop b i)))
                  (return false)))
              t))))
 
