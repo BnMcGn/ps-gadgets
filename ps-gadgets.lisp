@@ -55,8 +55,14 @@
      (defun string-literal-p (itm)
        (equal "string" (typeof itm)))
 
-    (defun stringp (itm)
+    (defun stringishp (itm)
       (or (string-literal-p itm) (string-object-p itm)))
+
+    (defun ensure-string-literal (itm)
+      (cond
+        ((stringp itm) itm)
+        ((string-object-p itm) (string-object-to-literal itm))
+        (t (throw "Not a string type"))))
 
      (defun ensure-array (arr)
        (cond
@@ -65,6 +71,12 @@
          ((chain arr (has-own-property 'length))
           arr)
          (t ([] arr))))
+
+    (defun js-string-equal (a b)
+      (cond
+        ((eq a b) t)
+        ((or (not (stringishp a)) (not (stringishp b))) nil)
+        ((equal (ensure-string-literal a) (ensure-string-literal b)) t)))
 
     (defun has-property (obj key)
       (chain obj (has-own-property key)))
