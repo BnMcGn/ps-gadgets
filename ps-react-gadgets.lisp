@@ -36,13 +36,15 @@
 
     ;;Props: sources, reducer, store-name
     (def-component json-loader
-        ((set-state :storage (create)))
+        ((set-state :storage (create) :done nil))
       (defun render ()
-        (clone-children (prop children)
-                        (if
-                         (prop store-name)
-                         (create-from-list (list (prop store-name) (state storage)))
-                         (state storage))))
+        (if (or (not (prop wait)) (and (prop wait) (state done)))
+            (clone-children (prop children)
+                            (if
+                             (prop store-name)
+                             (create-from-list (list (prop store-name) (state storage)))
+                             (state storage)))
+            null))
       (defun component-did-mount ()
         (let ((reducer (or (prop reducer) (@ this default-reducer))))
           (if (arrayp (prop sources))
@@ -53,9 +55,11 @@
                             (funcall
                              reducer
                              (state storage)
-                             res))))
+                             res)
+                            :done t)))
               (do-keyvalue (key url (prop sources))
                 (let ((currkey key))
+                  ;;FIXME: done/wait not implemented for multiple source loader
                   (json-bind (res url ())
                              (let ((stor (create-from-list (list currkey res))))
                                (set-state
