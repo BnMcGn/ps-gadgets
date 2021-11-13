@@ -21,29 +21,32 @@
   :code
   (ps
 
-     (setf *whitespace-characters*
-       (lisp (list* 'list gadgets:*whitespace-characters*)))
+    (setf *whitespace-characters*
+          (lisp (list* 'list gadgets:*whitespace-characters*)))
 
-     (defun say (thing)
-       (chain console (log thing))
-       thing)
+    (defun say (thing)
+      (chain console (log thing))
+      thing)
 
-     (defun grab (thing)
-       (if (@ window grabbed)
-           (chain window grabbed (push thing))
-           (setf (@ window grabbed) (list thing)))
-       thing)
+    (defun grab (thing)
+      (if (@ window grabbed)
+          (chain window grabbed (push thing))
+          (setf (@ window grabbed) (list thing)))
+      thing)
 
-     ;;FIXME: Should check that isn't some other compound type. Else check if is
-     ;; known atom type.
-     (defun atom (itm)
-       (not (arrayp itm)))
+    ;;FIXME: Should check that isn't some other compound type. Else check if is
+    ;; known atom type.
+    (defun atom (itm)
+      (not (arrayp itm)))
 
-     (defun arrayp (itm)
-       (chain -array (is-array itm)))
+    (defun arrayp (itm)
+      (chain -array (is-array itm)))
 
-     (defun numberp (itm)
-       (equal "number" (typeof itm)))
+    (defun numberp (itm)
+      (equal "number" (typeof itm)))
+
+    (defun integerp (itm)
+      (chain -number (is-integer itm)))
 
     (defun string-object-p (itm)
       (and (equal (typeof itm) "object")
