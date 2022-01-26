@@ -381,6 +381,42 @@ Try-awhile will return the predicate value on success or nil on failure. If a fu
                          (funcall reject (-error "Network Error"))))
                  (chain req (send)))))))
 
+    ;; Set operations
+
+    (defun is-superset (set subset)
+      (for-of
+       (itm subset)
+       (unless (chain set (has itm))
+         (return nil)))
+      t)
+
+    (defun union (x y)
+      (let ((res (new (-set x))))
+        (for-of (itm y)
+                (chain res (add itm)))
+        res))
+
+    (defun intersection (x y)
+      (let ((res (new (-set))))
+        (for-of (itm y)
+                (when (chain x (has itm))
+                  (chain res (add itm))))
+        res))
+
+    (defun difference (x y)
+      (let ((res (new (-set x))))
+        (for-of (itm y)
+                (chain res (delete itm)))
+        res))
+
+    (defun set-xor (x y)
+      (let ((res (new (-set x))))
+        (for-of (itm y)
+                (if (chain res (has itm))
+                    (chain res (delete itm))
+                    (chain res (add itm))))
+        res))
+
      ;;Tools for non-destructive editing. Useful for redux.
 
      (defun shallow-copy (obj)

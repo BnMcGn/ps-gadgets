@@ -6,6 +6,7 @@
   :license "Specify license here"
   :depends-on (#:parenscript
                #:gadgets
+               #:paren6
                #:cl-utilities
                #:alexandria
                #:trivial-types
