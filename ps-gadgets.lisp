@@ -304,7 +304,7 @@ Try-awhile will return the predicate value on success or nil on failure. If a fu
     (defun http-url-p (item)
       (let ((url nil))
         (try (setf url (new (-u-r-l item)))
-             (:catch (_) (return nil)))
+             (:catch (_) (return-from http-url-p nil)))
         (or (eq (@ url protocol) "http:") (eq (@ url protocol "https:")))))
 
      (defun not-empty (itm)
@@ -384,7 +384,7 @@ Try-awhile will return the predicate value on success or nil on failure. If a fu
     ;; Set operations
 
     (defun is-superset (set subset)
-      (for-of
+      (paren6:for-of
        (itm subset)
        (unless (chain set (has itm))
          (return nil)))
@@ -392,26 +392,26 @@ Try-awhile will return the predicate value on success or nil on failure. If a fu
 
     (defun union (x y)
       (let ((res (new (-set x))))
-        (for-of (itm y)
+        (paren6:for-of (itm y)
                 (chain res (add itm)))
         res))
 
     (defun intersection (x y)
       (let ((res (new (-set))))
-        (for-of (itm y)
+        (paren6:for-of (itm y)
                 (when (chain x (has itm))
                   (chain res (add itm))))
         res))
 
     (defun difference (x y)
       (let ((res (new (-set x))))
-        (for-of (itm y)
+        (paren6:for-of (itm y)
                 (chain res (delete itm)))
         res))
 
     (defun set-xor (x y)
       (let ((res (new (-set x))))
-        (for-of (itm y)
+        (paren6:for-of (itm y)
                 (if (chain res (has itm))
                     (chain res (delete itm))
                     (chain res (add itm))))
