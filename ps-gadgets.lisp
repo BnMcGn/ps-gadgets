@@ -305,7 +305,7 @@ Try-awhile will return the predicate value on success or nil on failure. If a fu
       (let ((url nil))
         (try (setf url (new (-u-r-l item)))
              (:catch (_) (return-from http-url-p nil)))
-        (or (eq (@ url protocol) "http:") (eq (@ url protocol "https:")))))
+        (or (eq (@ url protocol) "http:") (eq (@ url protocol) "https:"))))
 
      (defun not-empty (itm)
        (and itm (< 0 (if (eq undefined (@ itm length))
